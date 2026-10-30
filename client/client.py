@@ -1,6 +1,9 @@
 import sys
+import os
 import pygame
-
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from game.game import doingsomethingwithants
+import numpy as np
 
 
 clock = pygame.time.Clock()
@@ -19,6 +22,8 @@ GAME_HEIGHT = 1080
 flags = pygame.RESIZABLE | pygame.SCALED
 screen = pygame.display.set_mode((GAME_WIDTH, GAME_HEIGHT), flags)
 
+ant_image = pygame.image.load("client/textures/ant.png").convert_alpha()
+
 original_map_image = pygame.image.load("client/textures/map.png").convert_alpha()
 
 
@@ -26,7 +31,7 @@ scaled_map_image = pygame.transform.scale_by(original_map_image,10)
 
 
 map_rect = scaled_map_image.get_rect()
-
+ant_rect = ant_image.get_rect()
 
 map_rect.topleft = (0,0)
 
@@ -40,7 +45,7 @@ def draw_pixel_text(surface, text, color):
 
 def start_menu(): 
 
-
+    # drawings ig
     game_name=draw_pixel_text(screen, "Untitled Tower Defense",(25,25,112))
 
     game_name1=draw_pixel_text(screen,"Username:",(25,25,112))
@@ -84,11 +89,6 @@ def start_menu():
                         running = False
 
                 
-                        
-
-        #game logic
-
-
         #rendering
         screen.fill((70, 130, 180))
         
@@ -109,12 +109,59 @@ def start_menu():
         clock.tick(60)
 
 def run_game():
+    ants = doingsomethingwithants()
+    ant_pixels = pygame.surfarray.pixels3d(ant_image)
+    img_w, img_h = ant_image.get_size()
+    running = True
+    while running:
+        dt = clock.tick(60)/1000
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                if event.key == pygame.K_F11:
+                    pygame.display.toggle_fullscreen()
+                if event.key == pygame.K_SPACE:
+                    ants.nextround()
+        
+        
+        
+                
+        
+        screen.blit(scaled_map_image, (0, 0))
+        ants.updateants(dt)
+        dzivas_skudras = ants.active
+        xs = ants.x[dzivas_skudras].astype(int)
+        ys = ants.y[dzivas_skudras].astype(int)
+        
+        valid_mask = (xs >= 0) & (xs < GAME_WIDTH - 3) & (ys >= 0) & (ys < GAME_HEIGHT - 3)
+        xs = xs[valid_mask]
+        ys = ys[valid_mask]
+        
+        screen_pixels = pygame.surfarray.pixels3d(screen)
+        ant_color = (90, 35, 10) 
+        
+        for dx in range(4):
+            for dy in range(4):
+                screen_pixels[xs + dx, ys + dy, :] = ant_color
+                
+        del screen_pixels  
+        
+        pygame.display.flip()
+
+        
+        pygame.display.flip()
+
+        
+        pygame.display.flip()
+
+
+       
     pygame.quit()
     sys.exit()
 
-def main():
-    start_menu()
-
 
 if __name__ == "__main__":
-  main()
+  start_menu()
