@@ -1,17 +1,18 @@
 import sys
 import os
 import pygame
+import random
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from game.game import doingsomethingwithants, Turret, Bomb, Farm , Freeze
 import numpy as np
-from game.game import TURRET_STATS, BOMB_STATS, FREEZE_STATS, FARM_STATS
+from game.game import TURRET_STATS, BOMB_STATS, FREEZE_STATS, FARM_STATS, EXPLOSION_TIME
 
 clock = pygame.time.Clock()
 pygame.init()
 
 info = pygame.display.Info()
 SCREEN_WIDTH = info.current_w
-SCREEN_HEIGHT = info.current_h
+SCREEN_HEIGHT = info.current_h 
 
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.NOFRAME)
@@ -57,6 +58,7 @@ farm_frames3 = load_sheet("client/textures/farm3.png")
 farm_frames4 = load_sheet("client/textures/farm4.png")
 farm_frames5 = load_sheet("client/textures/farm5.png")
 farm_levels = [farm_frames1, farm_frames2, farm_frames3, farm_frames4, farm_frames5]
+
 explosion_frames = load_sheet("client/textures/explosion.png")
 
 original_turret_legs = pygame.image.load("client/textures/turret_legs1.png").convert_alpha()
@@ -71,18 +73,15 @@ scaled_freeze = pygame.transform.scale_by(freeze_frames1[0], 2)
 scaled_farm = pygame.transform.scale_by(farm_frames1[0],2)
 scaled_map_image = pygame.transform.scale_by(original_map_image,10)
 
-
 map_rect = scaled_map_image.get_rect()
 
 map_rect.topleft = (0,0)
-
 
 PIXEL_FONT = pygame.font.Font("client/textures/PublicPixel.ttf", 32)
 
 def draw_pixel_text(surface, text, color):
     text_surface = PIXEL_FONT.render(text, True, color)
     return text_surface
-
 
 def start_menu(): 
 
@@ -174,13 +173,14 @@ def run_game():
     placing_freeze = False
 
     turret_icon_rect = scaled_turret.get_rect(topleft=(50, 960))
-    bomb_icon_rect = scaled_bomb_turret.get_rect(topleft=(160,960))
+    bomb_icon_rect = scaled_bomb_turret.get_rect(topleft=(380,960))
     freeze_icon_rect = scaled_freeze.get_rect(topleft=(270,960))
-    farm_icon_rect = scaled_farm.get_rect(topleft=(380,960))
+    farm_icon_rect = scaled_farm.get_rect(topleft=(160,960))
 
     blocked = False
     running = True
     selected = None
+    BOMB_FRAME_TIME = 0.05 
     
     while running:
         dt = clock.tick(60)/1000
@@ -206,9 +206,9 @@ def run_game():
                     selected = None
                 if event.key == pygame.K_2:
                     placing_turret = False
-                    placing_bomb = True
+                    placing_bomb = False
                     placing_freeze = False
-                    placing_farm = False
+                    placing_farm = True
                     selected = None
                 if event.key == pygame.K_3:
                     placing_turret = False
@@ -218,9 +218,9 @@ def run_game():
                     selected = None
                 if event.key == pygame.K_4:
                     placing_turret = False
-                    placing_bomb = False
+                    placing_bomb = True
                     placing_freeze = False
-                    placing_farm = True
+                    placing_farm = False
                     selected = None
                 if event.key == pygame.K_q:
                     placing_turret = False
@@ -228,29 +228,65 @@ def run_game():
                     placing_freeze = False
                     placing_farm = False
                     selected = None
+                if event.key == pygame.K_c:
+                    if selected != None:
+                        if isinstance(selected,Turret):
+                            ants.turrets.remove(selected)
+                            ants.money += TURRET_STATS[selected]["cost"] * 0.5
+                            selected = None
+                        if isinstance(selected,Farm):
+                            ants.farms.remove(selected)
+                            ants.money += FARM_STATS[selected]["cost"] * 0.5
+                            selected = None
+                        if isinstance(selected,Freeze):
+                            ants.freezes.remove(selected)
+                            ants.money += FREEZE_STATS[selected]["cost"] * 0.5
+                            selected = None
+                        if isinstance(selected,Bomb):
+                            ants.bombs.remove(selected)
+                            ants.money += BOMB_STATS[selected]["cost"] * 0.5
+                            selected = None
                 if event.key == pygame.K_e:
+                    keys =  pygame.key.get_pressed()
                     if selected != None:
                         if isinstance(selected, Turret):
+                            if keys[pygame.K_LCTRL]:
+                                for i in range(selected.level+1, 5):
+                                    if ants.money >= TURRET_STATS[selected.level+1]["cost"]:
+                                        Turret.upgrade(selected)
                             if selected.level !=5:
                                 if ants.money >= TURRET_STATS[selected.level+1]["cost"]:
                                     Turret.upgrade(selected)
                                     ants.money -= TURRET_STATS[selected.level]["cost"]
                         if isinstance(selected, Bomb):
+                            if keys[pygame.K_LCTRL]:
+                                for i in range(selected.level+1, 5):
+                                    if ants.money >= BOMB_STATS[selected.level+1]["cost"]:
+                                        Bomb.upgrade(selected)
                             if selected.level !=5:
                                 if ants.money >= BOMB_STATS[selected.level+1]["cost"]:
                                     Bomb.upgrade(selected)
                                     ants.money -= BOMB_STATS[selected.level]["cost"]
                         if isinstance(selected, Farm):
+                            if keys[pygame.K_LCTRL]:
+                                for i in range(selected.level+1, 5):
+                                    if ants.money >= FARM_STATS[selected.level+1]["cost"]:
+                                        Farm.upgrade(selected)
                             if selected.level !=5:
                                 if ants.money >= FARM_STATS[selected.level+1]["cost"]:
                                     Farm.upgrade(selected)
                                     ants.money -= FARM_STATS[selected.level]["cost"]
                             
                         if isinstance(selected, Freeze):
+                            if keys[pygame.K_LCTRL]:
+                                for i in range(selected.level+1, 5):
+                                    if ants.money >= TURRET_STATS[selected.level+1]["cost"]:
+                                        Turret.upgrade(selected)
                             if selected.level !=5:
                                 if ants.money >= FREEZE_STATS[selected.level+1]["cost"]:
                                     Freeze.upgrade(selected)
                                     ants.money -= FREEZE_STATS[selected.level]["cost"]
+                
 
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -398,9 +434,10 @@ def run_game():
                                         if scaled_map_image.get_at(preview_farm.get_rect(center=event.pos).bottomright)== (27, 132, 12):
                                             if blocked != True: 
                                                 if ants.money >= FARM_STATS[1]["cost"]:
-                                                    ants.money -= FARM_STATS[1]["cost"]
-                                                    ants.farms.append(Farm(*event.pos))
-                                                    placing_farm = False
+                                                    if len(ants.farms) <= 4:
+                                                        ants.money -= FARM_STATS[1]["cost"]
+                                                        ants.farms.append(Farm(*event.pos))
+                                                        placing_farm = False
                 if event.button == 3:     
                     placing_turret = False
                     placing_bomb = False
@@ -429,7 +466,11 @@ def run_game():
             debug_alive_ants = draw_pixel_text(screen, "alive ants " + str(ants.count),(255,255,255))
             debug_ant_hp = draw_pixel_text(screen, "ant hp " + str(int(ants.starting_hp)),(255,255,255))
             debug_ant_shield = draw_pixel_text(screen,"ant shield " + str(int(ants.starting_shield)),(255,255,255))
-
+            debug_money_multi = draw_pixel_text(screen, "money multi "+ str(ants.money_multi_per_damage),(255,255,255))
+            debut_money_per_round = draw_pixel_text(screen, "money per round "+ str(ants.money_per_round),(255,255,255))
+            
+            screen.blit(debut_money_per_round,(0,500))
+            screen.blit(debug_money_multi,(0,450))
             screen.blit(debug_alive_ants,(0,250))
             screen.blit(debug_fps,(0,200))
             screen.blit(ants_left_to_spawn,(0,150))
@@ -456,10 +497,10 @@ def run_game():
         screen.blit(score_itself_text,(200,20))
         screen.blit(money_text, (10, 80))
         screen.blit(money_itself_text,(200,80))
-        screen.blit(health_text,(1100,20))
-        screen.blit(health_itself_text,(1320,20))
-        screen.blit(round_text,(1100,80))
-        screen.blit(round_itself_text,(1300,80))
+        screen.blit(health_text,(1000,20))
+        screen.blit(health_itself_text,(1220,20))
+        screen.blit(round_text,(1000,80))
+        screen.blit(round_itself_text,(1200,80))
 
         #ants
 
@@ -478,25 +519,40 @@ def run_game():
         screen_pixels = pygame.surfarray.pixels3d(screen)
         screen_pixels[mask] = (90, 35, 10)
         del screen_pixels
+
+        # explosions
+        for e in ants.explosions:
+            t = e["age"] / EXPLOSION_TIME         
+            if t < 1 / 3:
+                frame = 0                         
+            elif t < 2 / 3:
+                frame = 1                       
+            else:
+                if "pick" not in e:
+                    e["pick"] = random.randint(2, len(explosion_frames) - 1)   # one of frames 3-6
+                frame = e["pick"]
+            size = e["r"] * 2
+            img = pygame.transform.scale(explosion_frames[frame], (size, size))
+            screen.blit(img, img.get_rect(center=(e["x"], e["y"])))
         
         # towers
 
         screen.blit(scaled_turret_legs,(50,960))
         screen.blit(scaled_turret, (50,960))
-        screen.blit(scaled_bomb_legs,(160,960))
-        screen.blit(scaled_bomb_turret,(160, 960))
+        screen.blit(scaled_bomb_legs,(380,960))
+        screen.blit(scaled_bomb_turret,(380,960))
         screen.blit(scaled_freeze,(270,960))
-        screen.blit(scaled_farm,(380,960))
+        screen.blit(scaled_farm,(160,960))
 
         turret_cost = draw_pixel_text(screen, str(TURRET_STATS[1]["cost"]),(255,255,255))
-        bomb_turret_cost = draw_pixel_text(screen, str(BOMB_STATS[1]["cost"]),(255,255,255))
+        bomb_turret_cost = draw_pixel_text(screen, "500k",(255,255,255))
         freeze_cost = draw_pixel_text(screen, str(FREEZE_STATS[1]["cost"]),(255,255,255))
         farm_cost = draw_pixel_text(screen, str(FARM_STATS[1]["cost"]),(255,255,255))
 
         screen.blit(turret_cost,(40,910))
-        screen.blit(bomb_turret_cost,(150,910))
+        screen.blit(bomb_turret_cost,(370,910))
         screen.blit(freeze_cost,(260,910))
-        screen.blit(farm_cost,(370,910))
+        screen.blit(farm_cost,(150,910))
 
         for t in ants.turrets:
             screen.blit(original_turret_legs, original_turret_legs.get_rect(center=(t.x, t.y)))
@@ -504,6 +560,25 @@ def run_game():
             frame = 0
             if t.since_shot < 0.1:
                 frame = min(t.shot_frame, len(frames) - 1)
+            img = pygame.transform.rotate(frames[frame], 180 - t.angle)
+            screen.blit(img, img.get_rect(center=(t.x, t.y)))
+
+        for t in ants.farms:
+            screen.blit(farm_levels[t.level-1][0], farm_levels[t.level-1][0].get_rect(center=(t.x, t.y)))
+        for t in ants.freezes:
+            screen.blit(freeze_levels[t.level-1][0], freeze_levels[t.level-1][0].get_rect(center=(t.x, t.y)))
+
+        for t in ants.bombs:
+            screen.blit(bomb_legs_image, bomb_legs_image.get_rect(center=(t.x, t.y)))
+            frames = bomb_levels[t.level - 1]
+            shot_frames = len(frames) - 1          # frames after the normal one
+            frame = 0
+            if t.level >= 3 and shot_frames > 0:
+                i = int(t.since_shot / BOMB_FRAME_TIME)
+                if i < shot_frames:
+                    frame = 1 + i
+            elif t.since_shot < 0.1:
+                frame = min(t.shot_frame, shot_frames)
             img = pygame.transform.rotate(frames[frame], 180 - t.angle)
             screen.blit(img, img.get_rect(center=(t.x, t.y)))
 
@@ -547,27 +622,26 @@ def run_game():
         if selected:
             pygame.draw.rect(screen,(255,0,0), turret_frames1[0].get_rect(center = (selected.x, selected.y)), 2)
             tower_level_text = draw_pixel_text(screen, "level: "+ str(selected.level) + "/5", (255,255,255))
-            screen.blit(tower_level_text, (1550,20))
+            screen.blit(tower_level_text, (1400,20))
             if isinstance(selected, Turret):
                 pygame.draw.circle(screen, (255, 255, 255), (selected.x, selected.y), TURRET_STATS[selected.level]["range"], 1) 
                 if selected.level != 5:
                     turret_upgrade = draw_pixel_text(screen, "cost: " + str(TURRET_STATS[selected.level+1]["cost"]), (255,255,255))
-                    screen.blit(turret_upgrade,(1550,70))
+                    screen.blit(turret_upgrade,(1400,70))
             if isinstance(selected, Bomb):
                 pygame.draw.circle(screen, (255, 255, 255), (selected.x, selected.y), BOMB_STATS[selected.level]["range"], 1) 
                 if selected.level != 5:
                     bomb_upgrade = draw_pixel_text(screen, "cost: " + str(BOMB_STATS[selected.level+1]["cost"]), (255,255,255))
-                    screen.blit(bomb_upgrade,(1550,70))
+                    screen.blit(bomb_upgrade,(1400,70))
             if isinstance(selected, Freeze):
                 pygame.draw.circle(screen, (255, 255, 255), (selected.x, selected.y), FREEZE_STATS[selected.level]["range"], 1) 
                 if selected.level != 5:
                     freeze_upgrade = draw_pixel_text(screen, "cost: " + str(FREEZE_STATS[selected.level+1]["cost"]), (255,255,255))
-                    screen.blit(freeze_upgrade,(1550,70))
+                    screen.blit(freeze_upgrade,(1400,70))
             if isinstance(selected, Farm):
-                pygame.draw.circle(screen, (255, 255, 255), (selected.x, selected.y), FARM_STATS[selected.level]["range"], 1) 
                 if selected.level != 5:
                     farm_upgrade = draw_pixel_text(screen, "cost: " + str(FARM_STATS[selected.level+1]["cost"]), (255,255,255))
-                    screen.blit(farm_upgrade,(1550,70))
+                    screen.blit(farm_upgrade,(1400,70))
 
 
         pygame.display.flip() 

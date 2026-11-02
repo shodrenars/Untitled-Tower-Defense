@@ -3,9 +3,9 @@ import random
 import math
 
 money_gain_per_damage = 0.5
-LANES = 31          # spawn y 520..550
-ANT_SPEED = 240     # px per second
-
+LANES = 31          
+ANT_SPEED = 60     
+EXPLOSION_TIME = 0.3
 
 def move_step(x, y, d):
     go_forward = (d == 0) & (((y >= 520) & (y <= 550)) | ((y >= 370) & (y <= 400)) | ((y >= 670) & (y <= 700)))
@@ -67,9 +67,7 @@ def move_step(x, y, d):
     d[turn] = 2
     # sešpadsmitais pagrieziens
     turn = (d == 2) & (x >= 1600) & (x <= 1630) & (x - y == 1080)
-    d[turn] = 0
-LANES = 31          # spawn y 520..550
-ANT_SPEED = 60     # px per second
+    d[turn] = 0   
 
 def build_path():
     x = np.full(LANES, 10, dtype=np.int16)
@@ -102,11 +100,14 @@ class doingsomethingwithants:
         self.path_x, self.path_y = PATH_X, PATH_Y
         self.path_len = self.path_x.shape[1]
         self.turrets = []
+        self.explosions = []
         self.bombs = []
         self.freezes = []
         self.farms = []
         self.money = 1000
         self.score = 0
+        self.money_per_round = 0
+        self.cover_range = None
         
         self.count = 0
         self.basehp = 100
@@ -119,8 +120,12 @@ class doingsomethingwithants:
         self.spawn_rate = 0.0   
         self.spawn_acc = 0.0
         self.current_round = 0
+        self.money_multi_per_damage = 1
 
     def updateants(self, dt):
+        for e in self.explosions:
+            e["age"] += dt
+        self.explosions = [e for e in self.explosions if e["age"] < EXPLOSION_TIME]
         if self.count == 0 and self.current_round > 0 and self.spawn_left == 0:
             self.nextround()
         if self.spawn_left > 0:
@@ -141,6 +146,7 @@ class doingsomethingwithants:
         lane = self.lane[:n]
         p = self.progress[:n]
         p += self.speed[:n] * dt
+        self.apply_freezes(n)
         step = p.astype(np.int32)
         at_base = step >= self.path_len - 1
         np.minimum(step, self.path_len - 1, out=step)
@@ -155,6 +161,7 @@ class doingsomethingwithants:
         self.remove_dead()
 
     def update_turrets(self, dt):
+        self.update_bombs(dt)
         ready = []
         for t in self.turrets:
             t.since_shot += dt
@@ -176,15 +183,14 @@ class doingsomethingwithants:
         starts = np.concatenate(([0], np.cumsum(counts)))
 
         for t in ready:
-            if t.cover_range != t.range:   # new turret or upgraded
+            if t.cover_range != t.range:  
                 dx = self.path_x.astype(np.int32) - t.x
                 dy = self.path_y.astype(np.int32) - t.y
                 t.cover = dx * dx + dy * dy <= t.range * t.range
                 t.steps = np.flatnonzero(t.cover.any(axis=0))[::-1]
                 t.cover_range = t.range
 
-            # keep shooting until the timer is above 0 again,
-            # so a slow frame still gets all the shots it should
+        
             while t.timer <= 0:
                 target = -1
                 busy = t.steps[counts[t.steps] > 0]
@@ -195,7 +201,7 @@ class doingsomethingwithants:
                         target = ok[0]
                         break
                 if target < 0:
-                    t.timer = 0   # nobody in range: wait, but don't save up shots
+                    t.timer = 0   
                     break
 
                 damage_done = 0
@@ -210,25 +216,110 @@ class doingsomethingwithants:
                         damage_done = tempt
                     else:
                         damage_done = self.hp[target] 
-                    self.money += damage_done * money_gain_per_damage
+                    self.money += damage_done * money_gain_per_damage * self.money_multi_per_damage
                     self.shield[target] = 0
                     self.hp[target] -= tempt
                 else:
                     self.hp[target] -= t.damage
-                    self.money += t.damage * money_gain_per_damage
+                    self.money += t.damage * money_gain_per_damage * self.money_multi_per_damage
                 t.timer += t.cooldown
                 t.since_shot = 0.0
                 t.shot_frame = random.randint(1, 4)
+    def apply_freezes(self, n):
+        speed = self.speed[:n]
+        speed[:] = ANT_SPEED 
+        if not self.freezes or n == 0:
+            return
+        lane = self.lane[:n]
+        step = np.minimum(self.progress[:n], self.path_len - 1).astype(np.int32)
+        for f in self.freezes:
+            if f.cover_range != f.range:  
+                dx = self.path_x.astype(np.int32) - f.x
+                dy = self.path_y.astype(np.int32) - f.y
+                f.cover = dx * dx + dy * dy <= f.range * f.range
+                f.cover_range = f.range
+            in_range = f.cover[lane, step]
+            np.minimum(speed, f.slow_speed, out=speed, where=in_range)
 
+    def update_bombs(self, dt):
+        ready = []
+        for b in self.bombs:
+            b.since_shot += dt
+            b.timer -= dt
+            if b.timer <= 0:
+                ready.append(b)
+
+        n = self.count
+        if not ready or n == 0:
+            for b in ready:
+                b.timer = 0
+            return
+
+        lane = self.lane[:n]
+        hp = self.hp[:n]
+        step = np.minimum(self.progress[:n], self.path_len - 1).astype(np.int16)
+        order = np.argsort(step, kind="stable")
+        counts = np.bincount(step, minlength=self.path_len)
+        starts = np.concatenate(([0], np.cumsum(counts)))
+        x = self.x[:n].astype(np.int32)
+        y = self.y[:n].astype(np.int32)
+
+        for b in ready:
+            if b.cover_range != b.range:   # new or upgraded
+                dx = self.path_x.astype(np.int32) - b.x
+                dy = self.path_y.astype(np.int32) - b.y
+                b.cover = dx * dx + dy * dy <= b.range * b.range
+                b.steps = np.flatnonzero(b.cover.any(axis=0))[::-1]
+                b.cover_range = b.range
+
+            target = -1
+            busy = b.steps[counts[b.steps] > 0]
+            for s in busy:
+                here = order[starts[s]:starts[s + 1]]
+                ok = here[b.cover[lane[here], s] & (hp[here] > 0)]
+                if ok.size:
+                    target = ok[0]
+                    break
+            if target < 0:
+                b.timer = 0   
+                continue
+
+            
+            tx = int(x[target])
+            ty = int(y[target])
+            dx = x - tx
+            dy = y - ty
+            r = b.explosion_radius
+            hit = np.flatnonzero((dx * dx + dy * dy <= r * r) & (hp > 0))
+
+            
+            absorbed = np.minimum(self.shield[hit], b.damage)
+            self.shield[hit] -= absorbed
+            to_hp = b.damage - absorbed
+            self.money += np.minimum(to_hp, hp[hit]).sum() * money_gain_per_damage
+            self.hp[hit] -= to_hp
+
+            self.explosions.append({"x": tx, "y": ty, "r": r, "age": 0.0})
+            b.angle = math.degrees(math.atan2(ty - b.y, tx - b.x))
+            b.timer += b.cooldown
+            b.since_shot = 0.0
+            b.shot_frame = random.randint(1, 4)
 
     def nextround(self):
      
         self.current_round += 1
         self.ants_this_round = int(self.ants_this_round * 1.1) + 1
-        self.starting_hp *= 1.01
+        self.starting_hp +=1
         self.starting_shield *= 1.1
         self.spawn_left += self.ants_this_round
         self.spawn_rate = self.spawn_left / 10  
+        self.money_multi_per_damage = 1
+        self.money_per_round = 0
+        for i in self.farms:
+            self.money += FARM_STATS[i.level]["money_given"]
+            self.money_per_round += FARM_STATS[i.level]["money_given"]
+            self.money_multi_per_damage *= FARM_STATS[i.level]["money multi on damage"]
+
         
     def remove_dead(self):
         n = self.count
@@ -276,11 +367,11 @@ class Turret:
    
 
 BOMB_STATS = {
-    1: {"range": 150, "damage": 5,  "cooldown": 1.0, "cost": 150, "explosion_radius": 1},
-    2: {"range": 170, "damage": 8,  "cooldown": 0.8, "cost": 150, "explosion_radius": 2},
-    3: {"range": 190, "damage": 12, "cooldown": 0.6, "cost": 250, "explosion_radius": 3},
-    4: {"range": 210, "damage": 18, "cooldown": 0.5, "cost": 400, "explosion_radius": 4},
-    5: {"range": 240, "damage": 30, "cooldown": 0.3, "cost": 700, "explosion_radius": 5},
+    1: {"range": 150, "damage": 10,  "cooldown": 1.0, "cost": 500000,  "explosion_radius": 30},
+    2: {"range": 170, "damage": 20,  "cooldown": 0.8, "cost": 500000,  "explosion_radius": 35},
+    3: {"range": 190, "damage": 50, "cooldown": 0.6, "cost": 1000000, "explosion_radius": 40},
+    4: {"range": 210, "damage": 100, "cooldown": 0.5, "cost": 1600000, "explosion_radius": 45},
+    5: {"range": 240, "damage": 200, "cooldown": 0.3, "cost": 4000000, "explosion_radius": 55},
 }
 class Bomb:
     def __init__(self, x, y, level=1):
@@ -288,6 +379,11 @@ class Bomb:
         self.cost = stats["cost"]
         self.x = x
         self.y = y
+        self.timer = 0.0
+        self.since_shot = 99.0
+        self.angle = 180.0
+        self.shot_frame = 1
+        self.cover_range = None
         self.set_level(level)
 
     def set_level(self, level):
@@ -296,17 +392,18 @@ class Bomb:
         self.range = stats["range"]
         self.damage = stats["damage"]
         self.cooldown = stats["cooldown"]
+        self.explosion_radius = stats["explosion_radius"]
 
     def upgrade(self):
         if self.level < len(BOMB_STATS):
             self.set_level(self.level + 1)
 
 FREEZE_STATS = {
-    1: {"range": 150, "damage": 5,  "cooldown": 1.0, "cost": 150, "freeze_time": 1},
-    2: {"range": 170, "damage": 8,  "cooldown": 0.8, "cost": 150, "freeze_time": 2},
-    3: {"range": 190, "damage": 12, "cooldown": 0.6, "cost": 250, "freeze_time": 3},
-    4: {"range": 210, "damage": 18, "cooldown": 0.5, "cost": 400, "freeze_time": 4},
-    5: {"range": 240, "damage": 30, "cooldown": 0.3, "cost": 700, "freeze_time": 5},
+    1: {"range": 65, "cost": 150, "freeze_multi": 60},
+    2: {"range": 65, "cost": 150, "freeze_multi": 55},
+    3: {"range": 65, "cost": 250, "freeze_multi": 45},
+    4: {"range": 65, "cost": 400, "freeze_multi": 30},
+    5: {"range": 65, "cost": 700, "freeze_multi": 20},
 }
 
 class Freeze:
@@ -315,25 +412,25 @@ class Freeze:
         self.cost = stats["cost"]
         self.x = x
         self.y = y
+        self.cover_range = None
         self.set_level(level)
 
     def set_level(self, level):
         self.level = level
         stats = FREEZE_STATS[level]
         self.range = stats["range"]
-        self.damage = stats["damage"]
-        self.cooldown = stats["cooldown"]
+        self.slow_speed = stats["freeze_multi"]
 
     def upgrade(self):
         if self.level < len(FREEZE_STATS):
             self.set_level(self.level + 1)
 
 FARM_STATS = {
-    1: {"cooldown": 1.0, "cost": 150, "money_given": 1},
-    2: {"cooldown": 0.8, "cost": 150, "money_given": 2},
-    3: {"cooldown": 0.6, "cost": 250, "money_given": 3},
-    4: {"cooldown": 0.5, "cost": 400, "money_given": 4},
-    5: {"cooldown": 0.3, "cost": 700, "money_given": 5},
+    1: { "cost": 150, "money_given": 50, "money multi on damage": 1},
+    2: { "cost": 400, "money_given": 100, "money multi on damage": 1},
+    3: { "cost": 1000, "money_given": 200, "money multi on damage": 1.01},
+    4: { "cost": 10000, "money_given": 1000, "money multi on damage": 1.1},
+    5: { "cost": 50000, "money_given": 2000, "money multi on damage": 1.2},
 }
 
 class Farm:
@@ -342,12 +439,12 @@ class Farm:
         self.cost = stats["cost"]
         self.x = x
         self.y = y
+        self.money_multi = stats["money multi on damage"]
         self.set_level(level)
 
     def set_level(self, level):
         self.level = level
         stats = FARM_STATS[level]
-        self.cooldown = stats["cooldown"]
 
     def upgrade(self):
         if self.level < len(FARM_STATS):
