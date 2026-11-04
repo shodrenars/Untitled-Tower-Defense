@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+
+    <!--   api/templates/index.html - THE LEADERBOARD PAGE -->
+    <!--   TABLE OF CONTENTS - search for a tag (Ctrl+F "[I3]") to jump to it -->
+    <!--     [I1]   Top navigation bar and the invisible admin button -->
+    <!--     [I2]   Score table -->
+    <!--     [I3]   Player lookup -->
+    <!--     [I4]   Admin password box -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rekordi · Untitled Tower Defense</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- [I1] TOP NAVIGATION BAR -->
+    <!-- ------------------------------------------------------------------ -->
+    <nav>
+        <div class="wrap">
+            <span class="brand">Untitled Tower Defense</span>
+            <a href="index.html" class="active">Rekordi</a>
+
+            <!-- The invisible admin button. Click the gap left of Kā -->
+            <!-- spēlēt. -->
+            <button class="secret" id="secret" tabindex="-1" aria-hidden="true"></button>
+            <a href="rules.html">Kā spēlēt</a>
+        </div>
+    </nav>
+
+    <!-- The page content. -->
+    <main class="wrap">
+        <h1>Līderu tabula</h1>
+        <p class="lead">Labākie rezultāti no visām nospēlētajām spēlēm. Kad tavā bāzē beidzas dzīvības, spēle pati nosūta tavus punktus serverim, un tie parādās šeit.</p>
+
+        <!-- Shows if the server is running. Filled in by app.js. -->
+        <div id="server-status" class="status"><span class="dot"></span><span class="label">Pārbaudu serveri…</span></div>
+
+        <!-- -------------------------------------------------------------- -->
+        <!-- [I2] SCORE TABLE -->
+        <!-- -------------------------------------------------------------- -->
+        <!-- The rows below are examples, replaced by app.js with real -->
+        <!-- scores. -->
+        <div class="panel table-scroll">
+            <table id="scores">
+                <thead>
+                    <tr>
+                        <th class="num">#</th>
+                        <th>Spēlētājs</th>
+                        <th class="num">Punkti</th>
+                        <th class="num">Raunds</th>
+                        <th>Datums</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="first example"><td class="num">1</td><td>Ēriks</td><td class="num">18 450</td><td class="num">47</td><td>piemērs</td></tr>
+                    <tr class="example"><td class="num">2</td><td>Līga</td><td class="num">15 120</td><td class="num">41</td><td>piemērs</td></tr>
+                    <tr class="example"><td class="num">3</td><td>Kārlis</td><td class="num">11 730</td><td class="num">36</td><td>piemērs</td></tr>
+                    <tr class="example"><td class="num">4</td><td>Žanete</td><td class="num">8 905</td><td class="num">29</td><td>piemērs</td></tr>
+                    <tr class="example"><td class="num">5</td><td>Ņikita</td><td class="num">4 260</td><td class="num">18</td><td>piemērs</td></tr>
+                </tbody>
+            </table>
+
+            <!-- Messages from admin mode, then notes about the table. -->
+            <p class="note" id="admin-note"></p>
+            <p class="note" id="scores-note">Šie ir izdomāti spēlētāji. Palaid serveri vai spēli, lai redzētu īstos rezultātus (top 100).</p>
+        </div>
+
+        <!-- -------------------------------------------------------------- -->
+        <!-- [I3] PLAYER LOOKUP -->
+        <!-- -------------------------------------------------------------- -->
+        <!-- Type a name to see that player's stats. -->
+        <h2>Spēlētāja statistika</h2>
+        <div class="panel">
+            <form class="lookup" id="lookup">
+                <input type="text" id="lookup-name" maxlength="20" placeholder="Spēlētāja vārds" required>
+                <button type="submit">Meklēt</button>
+            </form>
+            <div class="result" id="lookup-result"></div>
+        </div>
+    </main>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- [I4] ADMIN PASSWORD BOX -->
+    <!-- ------------------------------------------------------------------ -->
+    <!-- Hidden until the invisible button is clicked. -->
+    <dialog class="panel" id="admin-dialog">
+        <form class="lookup" id="admin-login">
+            <input type="password" id="admin-password" placeholder="Parole" autocomplete="off" required>
+            <button type="submit">Ienākt</button>
+        </form>
+        <div class="result" id="admin-result"></div>
+    </dialog>
+
+    <!-- All the page's code. -->
+    <script src="../static/app.js"></script>
+</body>
+</html>

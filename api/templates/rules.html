@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+
+    <!--   api/templates/rules.html - THE HOW TO PLAY PAGE -->
+    <!--   The tower and card numbers here are saved examples. When the server -->
+    <!--   runs, app.js replaces them with live numbers from the game. -->
+    <!--   TABLE OF CONTENTS - search for a tag (Ctrl+F "[R3]") to jump to it -->
+    <!--     [R1]   Top navigation bar and the invisible admin button -->
+    <!--     [R2]   Goal -->
+    <!--     [R3]   Controls -->
+    <!--     [R4]   Game features -->
+    <!--     [R5]   Towers -->
+    <!--     [R6]   Fusion -->
+    <!--     [R7]   Cards -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kā spēlēt · Untitled Tower Defense</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+
+    <!-- ------------------------------------------------------------------ -->
+    <!-- [R1] TOP NAVIGATION BAR -->
+    <!-- ------------------------------------------------------------------ -->
+    <nav>
+        <div class="wrap">
+            <span class="brand">Untitled Tower Defense</span>
+            <a href="index.html">Rekordi</a>
+
+            <!-- The invisible admin button. It takes you to the -->
+            <!-- leaderboard to log in. -->
+            <button class="secret" id="secret" tabindex="-1" aria-hidden="true"></button>
+            <a href="rules.html" class="active">Kā spēlēt</a>
+        </div>
+    </nav>
+
+    <main class="wrap">
+        <h1>Kā spēlēt</h1>
+        <p class="lead">Untitled Tower Defense ir tower defense spēle ar kāršu uzlabojumiem. Pa līkumoto ceļu uz tavu māju nāk skudras: sākumā dažas, vēlāk miljoni. Novieto torņus, uzlabo tos un savāc kārtis, lai izdzīvotu pēc iespējas ilgāk.</p>
+
+        <div id="server-status" class="status"><span class="dot"></span><span class="label">Pārbaudu serveri…</span></div>
+
+        <!-- -------------------------------------------------------------- -->
+        <!-- [R2] GOAL -->
+        <!-- -------------------------------------------------------------- -->
+        <h2>Mērķis</h2>
+        <div class="panel">
+            <p>Spēle ir bezgalīga: katrs nākamais vilnis ir lielāks un skudrām ir vairāk hp un shield. Katra skudra, kas aiziet līdz galapountam, atņem 1 basehp. Kad bāzes dzīvības nokrīt līdz 0, spēle beidzas un tavs rezultāts tiek saglabāts līderu tabulā.</p>
+            <p><strong>Punkti:</strong> 1 punkts par katru nogalināto skudru. Nauda nāk no katra damage, ko torņi nodara, un no fermām.</p>
+        </div>
+
+        <!-- -------------------------------------------------------------- -->
+        <!-- [R3] CONTROLS -->
+        <!-- -------------------------------------------------------------- -->
+        <h2>Vadība</h2>
+        <div class="panel table-scroll">
+            <table>
+                <thead><tr><th>Taustiņš</th><th>Ko dara</th></tr></thead>
+                <tbody>
+                    <tr><td><kbd>Enter</kbd></td><td>Izvēlnē sāk spēli (vispirms ieraksti savu vārdu)</td></tr>
+                    <tr><td><kbd>Atstarpe</kbd></td><td>Sāk nākamo vilni uzreiz (nepalaistās skudras pāriet uz nākamo vilni)</td></tr>
+                    <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd></td><td>Izvēlas torni: turret, farm, freezer, bomb (vai uzklikšķini uz ikonas apakšā)</td></tr>
+                    <tr><td>Kreisais klikšķis</td><td>Novieto izvēlēto torni uz zāles vai izvēlas jau novietotu torni</td></tr>
+                    <tr><td><kbd>Shift</kbd> + vilkšana</td><td>Novieto daudz parasto torņu pēc kārtas un uzlabo tos, ja pietiek naudas (ne apvienotos)</td></tr>
+                    <tr><td>Labais klikšķis, <kbd>Q</kbd></td><td>Atceļ torņa novietošanu / izvēli</td></tr>
+                    <tr><td><kbd>E</kbd></td><td>Uzlabo izvēlēto torni uz nākamo līmeni (ja pietiek naudas)</td></tr>
+                    <tr><td><kbd>C</kbd></td><td>Pārdod izvēlēto torni par pusi no tā līmeņa cenas</td></tr>
+                    <tr><td><kbd>TAB</kbd></td><td>Atver kāršu izvēlni (arī poga CARDS apakšā)</td></tr>
+                    <tr><td><kbd>F</kbd></td><td>Atver torņu apvienošanu (arī poga FUSE apakšā)</td></tr>
+                    <tr><td><kbd>P</kbd></td><td>Pauze, vēlreiz <kbd>P</kbd> turpina</td></tr>
+                    <tr><td><kbd>Esc</kbd></td><td>Izvēlne: turpināt vai iziet</td></tr>
+                    <tr><td><kbd>R</kbd></td><td>Beigu ekrānā sāk jaunu spēli no nulles</td></tr>
+                    <tr><td><kbd>F11</kbd></td><td>Pilnekrāna režīms</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- -------------------------------------------------------------- -->
+        <!-- [R4] GAME FEATURES -->
+        <!-- -------------------------------------------------------------- -->
+        <h2>Spēles iespējas</h2>
+        <div class="grid">
+            <div class="feature"><h3>Kāršu sistēma</h3><p>Ik pēc 5 raundiem spēle apstājas un tu izvēlies 1 no 3 kārtīm. Vienlaikus var būt uzliktas līdz 5 kārtīm, arī vairākas vienādas.</p></div>
+            <div class="feature"><h3>Trade-up</h3><p>Jebkuras 3 viena retuma kārtis (piemēram, 3 dažādas Common) var apmainīt pret 1 nejaušu kārti nākamajā retumā.</p></div>
+            <div class="feature"><h3>Miljoniem skudru</h3><p>Vienlaikus uz ekrāna var būt 100 miljardi skudru. Vienādas skudras tiek apvienotas „paciņās”, tāpēc spēle joprojām rit ar 60 FPS.</p></div>
+            <div class="feature"><h3>Bezgalīgi viļņi</h3><p>Katrs vilnis ir par 10% lielāks, skudrām ir vairāk dzīvību un vairogi aug par 10% katrā raundā. Pirmo vilni sāc ar <kbd>Atstarpi</kbd>, pēc tam katrs nākamais sākas automātiski, kad iepriekšējais ir pieveikts.</p></div>
+            <div class="feature"><h3>Vairogi</h3><p>Skudrām ir vairogs, kas vispirms uzņem bojājumu. Tikai tad, kad vairogs ir 0, sāk kristies dzīvības.</p></div>
+        </div>
+
+        <!-- -------------------------------------------------------------- -->
+        <!-- [R5] TOWERS -->
+        <!-- -------------------------------------------------------------- -->
+        <h2>Torņi</h2>
+        <p class="lead"><em>Cost</em> 1. līmenī ir torņa pirkšanas cena, nākamajos līmeņos tā ir uzlabojuma cena.</p>
+        <div id="towers">
+            <section class="tower panel">
+                <h3>Turret · taustiņš <kbd>1</kbd></h3>
+                <p class="desc">Šauj pa vienu skudru: vienmēr pa to, kas tikusi vistālāk pa ceļu. Pirmais šāviens noņem vairogu, tad dzīvības.</p>
+                <div class="table-scroll"><table><thead><tr><th class="num">Level</th><th class="num">Cost</th><th class="num">Damage</th><th class="num">Cooldown</th><th class="num">Range</th><th class="num">DPS</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">150</td><td class="num">10</td><td class="num">1 s</td><td class="num">200 px</td><td class="num">10</td></tr><tr><td class="num">2</td><td class="num">400</td><td class="num">20</td><td class="num">0.5 s</td><td class="num">240 px</td><td class="num">40</td></tr><tr><td class="num">3</td><td class="num">700</td><td class="num">30</td><td class="num">0.3 s</td><td class="num">280 px</td><td class="num">100</td></tr><tr><td class="num">4</td><td class="num">3 250</td><td class="num">40</td><td class="num">0.1 s</td><td class="num">320 px</td><td class="num">400</td></tr><tr><td class="num">5</td><td class="num">29 000</td><td class="num">100</td><td class="num">0.04 s</td><td class="num">450 px</td><td class="num">2 500</td></tr></tbody></table></div>
+            </section>
+            <section class="tower panel">
+                <h3>Farm · taustiņš <kbd>2</kbd></h3>
+                <p class="desc">Nešauj. Katra raunda sākumā dod naudu, un augstākos līmeņos palielina naudu par katru bojājuma punktu. Kartē var būt ne vairāk kā 5 fermas.</p>
+                <div class="table-scroll"><table><thead><tr><th class="num">Level</th><th class="num">Cost</th><th class="num">Money per round</th><th class="num">Money multiplier</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">150</td><td class="num">50</td><td class="num">×1</td></tr><tr><td class="num">2</td><td class="num">400</td><td class="num">100</td><td class="num">×1</td></tr><tr><td class="num">3</td><td class="num">1 000</td><td class="num">200</td><td class="num">×1.01</td></tr><tr><td class="num">4</td><td class="num">10 000</td><td class="num">1 000</td><td class="num">×1.1</td></tr><tr><td class="num">5</td><td class="num">50 000</td><td class="num">2 000</td><td class="num">×1.2</td></tr></tbody></table></div>
+            </section>
+            <section class="tower panel">
+                <h3>Freezer · taustiņš <kbd>3</kbd></h3>
+                <p class="desc">Palēnina visas skudras savā zonā. Parastais skudru ātrums ir 60 px/s. Ja skudra ir vairāku saldētāju zonā, darbojas spēcīgākais.</p>
+                <div class="table-scroll"><table><thead><tr><th class="num">Level</th><th class="num">Cost</th><th class="num">Range</th><th class="num">Ant speed in zone</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">150</td><td class="num">65 px</td><td class="num">60 px/s</td></tr><tr><td class="num">2</td><td class="num">150</td><td class="num">65 px</td><td class="num">55 px/s</td></tr><tr><td class="num">3</td><td class="num">250</td><td class="num">65 px</td><td class="num">45 px/s</td></tr><tr><td class="num">4</td><td class="num">400</td><td class="num">65 px</td><td class="num">30 px/s</td></tr><tr><td class="num">5</td><td class="num">700</td><td class="num">65 px</td><td class="num">20 px/s</td></tr></tbody></table></div>
+            </section>
+            <section class="tower panel">
+                <h3>Bomb · taustiņš <kbd>4</kbd></h3>
+                <p class="desc">Mērķē uz priekšējo skudru, un sprādziens trāpa VISĀM skudrām sprādziena rādiusā. 4. līmenis izšauj 3 raķetes pēc kārtas uz dažādām vietām.</p>
+                <div class="table-scroll"><table><thead><tr><th class="num">Level</th><th class="num">Cost</th><th class="num">Damage</th><th class="num">Cooldown</th><th class="num">Range</th><th class="num">Explosion radius</th><th class="num">Rockets</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">500 000</td><td class="num">10</td><td class="num">1.0 s</td><td class="num">150 px</td><td class="num">30 px</td><td class="num">1</td></tr><tr><td class="num">2</td><td class="num">500 000</td><td class="num">20</td><td class="num">0.8 s</td><td class="num">170 px</td><td class="num">35 px</td><td class="num">1</td></tr><tr><td class="num">3</td><td class="num">1 000 000</td><td class="num">50</td><td class="num">0.6 s</td><td class="num">190 px</td><td class="num">40 px</td><td class="num">1</td></tr><tr><td class="num">4</td><td class="num">1 600 000</td><td class="num">90</td><td class="num">0.5 s</td><td class="num">230 px</td><td class="num">45 px</td><td class="num">3</td></tr><tr><td class="num">5</td><td class="num">4 000 000</td><td class="num">200</td><td class="num">0.3 s</td><td class="num">240 px</td><td class="num">55 px</td><td class="num">1</td></tr></tbody></table></div>
+            </section>
+        </div>
+
+        <!-- -------------------------------------------------------------- -->
+        <!-- [R6] FUSION -->
+        <!-- -------------------------------------------------------------- -->
+        <h2>Torņu apvienošana</h2>
+        <p class="lead">Spied pogu <kbd>FUSE</kbd> apakšā (vai <kbd>F</kbd>), izvēlies recepti un novieto jauno torni uz zāles. Apvienošana maksā arī naudu. Receptē vajadzīgie 5. līmeņa torņi un nauda tiek izlietoti tikai tad, kad apvienoto torni novieto, un tiek ņemti tie torņi, kas ir vistuvāk. <em>Cost</em> 1. līmenī ir apvienošanas cena, nākamajos līmeņos tā ir uzlabojuma cena. Apvienotie torņi ir 2× lielāki, tiem ir 5 līmeņi, tos uzlabo ar <kbd>E</kbd> un pārdod ar <kbd>C</kbd>. Saldētāji savā starpā nesummējas, bet apvienotā torņa palēninājums summējas ar saldētāju.</p>
+        <div id="fused">
+            <section class="tower panel">
+                <h3>Plasma Railgun</h3>
+                <p class="desc">Ļoti ātri, smagi plazmas šāvieni pa priekšējo skudru, katrs trāpījums ar mazu sprādzienu, un skudras zonā tiek nedaudz palēninātas.</p>
+                <p class="desc"><strong>Recepte (visi 5. līmenī):</strong> 10 torņi + 1 saldētāji + 1 bumbas + 50 000 000 naudas</p>
+                <div class="table-scroll"><table><thead><tr><th class="num">Level</th><th class="num">Cost</th><th class="num">Damage</th><th class="num">Cooldown</th><th class="num">Range</th><th class="num">Slows to</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">50 000 000</td><td class="num">1 500</td><td class="num">0.05 s</td><td class="num">500 px</td><td class="num">85%</td></tr><tr><td class="num">2</td><td class="num">100 000 000</td><td class="num">3 000</td><td class="num">0.04 s</td><td class="num">520 px</td><td class="num">82%</td></tr><tr><td class="num">3</td><td class="num">400 000 000</td><td class="num">4 500</td><td class="num">0.03 s</td><td class="num">550 px</td><td class="num">80%</td></tr><tr><td class="num">4</td><td class="num">1 500 000 000</td><td class="num">7 500</td><td class="num">0.025 s</td><td class="num">580 px</td><td class="num">75%</td></tr><tr><td class="num">5</td><td class="num">6 000 000 000</td><td class="num">15 000</td><td class="num">0.02 s</td><td class="num">600 px</td><td class="num">70%</td></tr></tbody></table></div>
+            </section>
+            <section class="tower panel">
+                <h3>Missile Silo</h3>
+                <p class="desc">Izšauj 3 lielas raķetes pēc kārtas uz dažādām vietām, ātri pārlādējas un nedaudz palēnina skudras zonā. Katrs nākamais Missile Silo maksā 2× vairāk.</p>
+                <p class="desc"><strong>Recepte (visi 5. līmenī):</strong> 10 bumbas + 4 torņi + 1 saldētāji + 100 000 000 naudas</p>
+                <div class="table-scroll"><table><thead><tr><th class="num">Level</th><th class="num">Cost</th><th class="num">Damage</th><th class="num">Cooldown</th><th class="num">Range</th><th class="num">Slows to</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">100 000 000</td><td class="num">1 500</td><td class="num">0.6 s</td><td class="num">350 px</td><td class="num">90%</td></tr><tr><td class="num">2</td><td class="num">200 000 000</td><td class="num">2 500</td><td class="num">0.55 s</td><td class="num">380 px</td><td class="num">88%</td></tr><tr><td class="num">3</td><td class="num">800 000 000</td><td class="num">4 000</td><td class="num">0.5 s</td><td class="num">410 px</td><td class="num">86%</td></tr><tr><td class="num">4</td><td class="num">3 000 000 000</td><td class="num">7 000</td><td class="num">0.45 s</td><td class="num">440 px</td><td class="num">83%</td></tr><tr><td class="num">5</td><td class="num">12 000 000 000</td><td class="num">15 000</td><td class="num">0.4 s</td><td class="num">480 px</td><td class="num">80%</td></tr></tbody></table></div>
+            </section>
+            <section class="tower panel">
+                <h3>Cryo Spire</h3>
+                <p class="desc">Spēcīga palēnināšanas zona, kas summējas ar saldētājiem, un sala sprādziens, kas trāpa visām skudrām zonā.</p>
+                <p class="desc"><strong>Recepte (visi 5. līmenī):</strong> 10 saldētāji + 2 torņi + 1 bumbas + 40 000 000 naudas</p>
+                <div class="table-scroll"><table><thead><tr><th class="num">Level</th><th class="num">Cost</th><th class="num">Damage</th><th class="num">Cooldown</th><th class="num">Range</th><th class="num">Slows to</th></tr></thead><tbody><tr><td class="num">1</td><td class="num">40 000 000</td><td class="num">300</td><td class="num">1.0 s</td><td class="num">150 px</td><td class="num">60%</td></tr><tr><td class="num">2</td><td class="num">80 000 000</td><td class="num">600</td><td class="num">0.9 s</td><td class="num">170 px</td><td class="num">50%</td></tr><tr><td class="num">3</td><td class="num">300 000 000</td><td class="num">1 200</td><td class="num">0.8 s</td><td class="num">190 px</td><td class="num">40%</td></tr><tr><td class="num">4</td><td class="num">1 200 000 000</td><td class="num">2 500</td><td class="num">0.7 s</td><td class="num">210 px</td><td class="num">30%</td></tr><tr><td class="num">5</td><td class="num">5 000 000 000</td><td class="num">6 000</td><td class="num">0.6 s</td><td class="num">240 px</td><td class="num">20%</td></tr></tbody></table></div>
+            </section>
+        </div>
+
+        <!-- -------------------------------------------------------------- -->
+        <!-- [R7] CARDS -->
+        <!-- -------------------------------------------------------------- -->
+        <h2>Kārtis</h2>
+        <div class="panel table-scroll">
+            <table id="rarities">
+                <thead><tr><th>Rarity</th><th class="num">Chance</th><th>Trade-up</th></tr></thead>
+                <tbody>
+                        <tr><td><span class="rarity" style="background:rgb(150,150,150)"></span>Common</td><td class="num">90%</td><td>any 3 Common → 1 random Rare</td></tr>
+                        <tr><td><span class="rarity" style="background:rgb(60,120,255)"></span>Rare</td><td class="num">5%</td><td>any 3 Rare → 1 random Epic</td></tr>
+                        <tr><td><span class="rarity" style="background:rgb(160,60,220)"></span>Epic</td><td class="num">4%</td><td>any 3 Epic → 1 random Legendary</td></tr>
+                        <tr><td><span class="rarity" style="background:rgb(255,200,0)"></span>Legendary</td><td class="num">0.99%</td><td>any 20 Legendary → 1 random Secret</td></tr>
+                        <tr><td><span class="rarity" style="background:rgb(20,20,20)"></span>Secret</td><td class="num">0.01%</td><td>can't be traded up</td></tr>
+                </tbody>
+            </table>
+            <p class="note">„+ hp” kārtis iedod dzīvības uzreiz un netiek ieliktas kāršu sarakstā. Trade-up laikā tās neizkrīt.</p>
+        </div>
+        <div class="card-list" id="card-list">
+                <div class="card common"><div class="tier">COMMON</div>+10% cash</div>
+                <div class="card common"><div class="tier">COMMON</div>+10% damage</div>
+                <div class="card common"><div class="tier">COMMON</div>+10% fire rate</div>
+                <div class="card common"><div class="tier">COMMON</div>+10 hp instantly</div>
+                <div class="card common"><div class="tier">COMMON</div>+1 hp every round</div>
+                <div class="card common"><div class="tier">COMMON</div>+0.01 hp per 1M damage (max 10 per round)</div>
+                <div class="card rare"><div class="tier">RARE</div>+30% cash</div>
+                <div class="card rare"><div class="tier">RARE</div>+30% damage</div>
+                <div class="card rare"><div class="tier">RARE</div>+30% fire rate</div>
+                <div class="card rare"><div class="tier">RARE</div>+3% damage per tower</div>
+                <div class="card rare"><div class="tier">RARE</div>+30 hp instantly</div>
+                <div class="card rare"><div class="tier">RARE</div>+2 hp every round</div>
+                <div class="card rare"><div class="tier">RARE</div>+0.02 hp per 1M damage (max 10 per round)</div>
+                <div class="card epic"><div class="tier">EPIC</div>+50% cash</div>
+                <div class="card epic"><div class="tier">EPIC</div>+50% damage</div>
+                <div class="card epic"><div class="tier">EPIC</div>+50% fire rate</div>
+                <div class="card epic"><div class="tier">EPIC</div>more damage the less hp you have</div>
+                <div class="card epic"><div class="tier">EPIC</div>+50 hp instantly</div>
+                <div class="card epic"><div class="tier">EPIC</div>+3 hp every round</div>
+                <div class="card epic"><div class="tier">EPIC</div>+0.03 hp per 1M damage (max 10 per round)</div>
+                <div class="card legendary"><div class="tier">LEGENDARY</div>+100% cash</div>
+                <div class="card legendary"><div class="tier">LEGENDARY</div>+100% damage</div>
+                <div class="card legendary"><div class="tier">LEGENDARY</div>+100% fire rate</div>
+                <div class="card legendary"><div class="tier">LEGENDARY</div>+1 damage per 1M unspent cash</div>
+                <div class="card legendary"><div class="tier">LEGENDARY</div>more cash per kill in big waves</div>
+                <div class="card legendary"><div class="tier">LEGENDARY</div>+1% of unspent cash every round</div>
+                <div class="card legendary"><div class="tier">LEGENDARY</div>+50 hp instantly</div>
+                <div class="card legendary"><div class="tier">LEGENDARY</div>+5 hp every round</div>
+                <div class="card legendary"><div class="tier">LEGENDARY</div>+0.05 hp per 1M damage (max 10 per round)</div>
+        </div>
+    </main>
+
+    <!-- All the page's code. -->
+    <script src="../static/app.js"></script>
+</body>
+</html>

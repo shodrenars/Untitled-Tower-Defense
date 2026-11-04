@@ -1,0 +1,451 @@
+/* ------------------------------------------------------------------------- */
+/* [W1] PIXEL FONT */
+/* ------------------------------------------------------------------------- */
+/* The same pixel font as the game. */
+/*   api/static/style.css - HOW THE WEBSITE LOOKS */
+/*   TABLE OF CONTENTS - search for a tag (Ctrl+F "[W4]") to jump to it */
+/*     [W1]   Pixel font */
+/*     [W2]   Colours */
+/*     [W3]   Page basics and headings */
+/*     [W4]   Top navigation bar */
+/*     [W5]   Page width and intro text */
+/*     [W6]   Server status line */
+/*     [W7]   Panels and tables */
+/*     [W8]   Leaderboard rows */
+/*     [W9]   Forms and buttons */
+/*     [W10]  Secret admin mode */
+/*     [W11]  Rules page */
+/*     [W12]  Cards */
+/*     [W13]  Phone screens */
+
+@font-face {
+    font-family: "PublicPixel";
+    src: url("PublicPixel.ttf") format("truetype");
+    unicode-range: U+0000-0144, U+0147-FFFF;
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W2] COLOURS */
+/* ------------------------------------------------------------------------- */
+/* Change a colour here and it changes everywhere on the site. */
+:root {
+    --bg: #0e1f0b;
+    --panel: #172e12;
+    --panel-2: #1f3b18;
+    --line: #2f5426;
+    --grass: #1b840c;
+    --road: #825800;
+    --text: #eef3e8;
+    --muted: #a9b9a0;
+    --gold: #ffdb58;
+    --red: #dc143c;
+    --common: #969696;
+    --rare: #3c78ff;
+    --epic: #a03cdc;
+    --legendary: #ffc800;
+    --secret: #141414;
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W3] PAGE BASICS AND HEADINGS */
+/* ------------------------------------------------------------------------- */
+/* Padding and borders count as part of an element's size. */
+* {
+    box-sizing: border-box;
+}
+
+/* Default look for the whole page. */
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+/* All headings use the pixel font. */
+h1, h2, h3 {
+    font-family: "PublicPixel", monospace;
+    font-weight: normal;
+    letter-spacing: 0.5px;
+}
+
+h1 {
+    font-size: 26px;
+    line-height: 1.4;
+    margin: 0 0 8px;
+    color: var(--gold);
+}
+
+h2 {
+    font-size: 17px;
+    margin: 48px 0 16px;
+    color: var(--gold);
+}
+
+h3 {
+    font-size: 13px;
+    margin: 0 0 12px;
+}
+
+/* Normal links. */
+a {
+    color: var(--gold);
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W4] TOP NAVIGATION BAR */
+/* ------------------------------------------------------------------------- */
+/* The brown bar along the top. */
+nav {
+    background: var(--road);
+    border-bottom: 4px solid #5a3d00;
+}
+
+/* Lays the bar's items out in one row. */
+nav .wrap {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+/* The game name. margin-right: auto pushes the links to the right. */
+nav .brand {
+    font-family: "PublicPixel", monospace;
+    font-size: 13px;
+    color: var(--text);
+    margin-right: auto;
+}
+
+/* The links, with a gold border on the current page. */
+nav a {
+    font-family: "PublicPixel", monospace;
+    font-size: 12px;
+    color: var(--text);
+    text-decoration: none;
+    padding: 10px 14px;
+    border: 3px solid transparent;
+}
+
+nav a:hover {
+    border-color: var(--gold);
+}
+
+nav a.active {
+    background: #5a3d00;
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W5] PAGE WIDTH AND INTRO TEXT */
+/* ------------------------------------------------------------------------- */
+/* Keeps the content centred and not too wide. */
+.wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+main.wrap {
+    padding-top: 40px;
+    padding-bottom: 80px;
+}
+
+/* The intro text under the main heading. */
+.lead {
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0 0 24px;
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W6] SERVER STATUS LINE */
+/* ------------------------------------------------------------------------- */
+/* The small dot and text. The dot is green online and red offline. */
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 20px;
+}
+
+.status .dot {
+    width: 12px;
+    height: 12px;
+    background: var(--common);
+}
+
+.status.online .dot {
+    background: var(--grass);
+}
+
+.status.offline .dot {
+    background: var(--red);
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W7] PANELS AND TABLES */
+/* ------------------------------------------------------------------------- */
+/* The dark boxes that hold content. */
+.panel {
+    background: var(--panel);
+    border: 3px solid var(--line);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+/* All tables. */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+}
+
+th, td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 2px solid var(--line);
+}
+
+th {
+    font-family: "PublicPixel", monospace;
+    font-size: 11px;
+    font-weight: normal;
+    color: var(--muted);
+    background: var(--panel-2);
+}
+
+td.num, th.num {
+    text-align: right;
+}
+
+/* Wide tables scroll sideways on small screens. */
+.table-scroll {
+    overflow-x: auto;
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W8] LEADERBOARD ROWS */
+/* ------------------------------------------------------------------------- */
+/* First place gets gold, and example rows are dimmed. */
+#scores tr.first td {
+    background: rgba(255, 219, 88, 0.14);
+    color: var(--gold);
+    font-weight: 700;
+}
+
+#scores tr.first td:first-child {
+    border-left: 6px solid var(--gold);
+}
+
+#scores tr.example td {
+    color: var(--muted);
+}
+
+#scores tr.first.example td {
+    color: var(--gold);
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W9] FORMS AND BUTTONS */
+/* ------------------------------------------------------------------------- */
+/* Small gray notes. */
+.note {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 12px;
+}
+
+/* Text box and button side by side. */
+form.lookup {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+form.lookup input {
+    flex: 1 1 220px;
+    font: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 3px solid var(--line);
+    padding: 10px 12px;
+}
+
+form.lookup input:focus {
+    outline: none;
+    border-color: var(--gold);
+}
+
+/* Gold buttons. */
+button {
+    font-family: "PublicPixel", monospace;
+    font-size: 12px;
+    color: #1a1200;
+    background: var(--gold);
+    border: 3px solid #b8961f;
+    padding: 10px 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #ffe78a;
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W10] SECRET ADMIN MODE */
+/* ------------------------------------------------------------------------- */
+/* The invisible button. It must beat the hover style above, and the */
+/* default cursor hides that it can be clicked. */
+.secret, .secret:hover {
+    width: 28px;
+    height: 36px;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    cursor: default;
+}
+
+/* The password box, centred on screen over a dark background. */
+dialog.panel {
+    width: min(460px, 90vw);
+    margin: auto;
+    color: var(--text);
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* The Mainīt and Dzēst buttons in the Admin column. */
+.tools {
+    white-space: nowrap;
+}
+
+.tools button {
+    font-size: 10px;
+    padding: 6px 8px;
+}
+
+/* Result text of the player lookup and password box. */
+.result {
+    margin-top: 14px;
+    min-height: 1.6em;
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W11] RULES PAGE */
+/* ------------------------------------------------------------------------- */
+/* Feature boxes that wrap to fit the screen. */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.feature {
+    background: var(--panel);
+    border: 3px solid var(--line);
+    padding: 18px;
+}
+
+.feature p {
+    margin: 0;
+    color: var(--muted);
+}
+
+/* Keys drawn like little keyboard buttons. */
+kbd {
+    font-family: "PublicPixel", monospace;
+    font-size: 11px;
+    background: var(--panel-2);
+    border: 2px solid var(--line);
+    border-bottom-width: 4px;
+    padding: 2px 7px;
+    white-space: nowrap;
+}
+
+/* Tower panels. */
+.tower {
+    margin-bottom: 28px;
+}
+
+.tower .desc {
+    color: var(--muted);
+    margin: 0 0 12px;
+}
+
+/* The small coloured square next to each rarity. */
+.rarity {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    vertical-align: -2px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+/* ------------------------------------------------------------------------- */
+/* [W12] CARDS */
+/* ------------------------------------------------------------------------- */
+/* The grid of all cards. */
+.card-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.card {
+    background: #191919;
+    border: 4px solid var(--common);
+    padding: 12px;
+}
+
+.card .tier {
+    font-family: "PublicPixel", monospace;
+    font-size: 10px;
+    margin-bottom: 8px;
+}
+
+/* Each rarity's border and title colour. */
+.card.common { border-color: var(--common); }
+.card.common .tier { color: var(--common); }
+.card.rare { border-color: var(--rare); }
+.card.rare .tier { color: var(--rare); }
+.card.epic { border-color: var(--epic); }
+.card.epic .tier { color: var(--epic); }
+.card.legendary { border-color: var(--legendary); }
+.card.legendary .tier { color: var(--legendary); }
+.card.secret { border-color: #6e6e6e; background: #000; }
+.card.secret .tier { color: #fff; }
+
+/* ------------------------------------------------------------------------- */
+/* [W13] PHONE SCREENS */
+/* ------------------------------------------------------------------------- */
+/* Smaller text and spacing on narrow screens. */
+@media (max-width: 600px) {
+    body {
+        font-size: 16px;
+    }
+
+    h1 {
+        font-size: 18px;
+    }
+
+    th, td {
+        padding: 10px 8px;
+    }
+
+    nav .brand {
+        width: 100%;
+    }
+}
