@@ -1,5 +1,1 @@
-*.db
-.venv/
-__pycache__/
-*.pyc
 admin_password.txt
