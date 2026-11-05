@@ -108,8 +108,6 @@ Visi torņu skaitļi ir noteikumu lapā un tiek nolasīti tieši no `game/game.p
 | `DELETE /scores/{id}` | Izdzēš rezultātu (vajag paroli) | 204, 401 vai 404 |
 | `PATCH /scores/{id}` | Nomaina vārdu rezultātam `{"player": "Anna"}` (vajag paroli) | 200, 401, 404 vai 422 |
 
-Parole tiek sūtīta galvenē `X-Admin-Password`, un serveris to salīdzina ar privāto failu `admin_password.txt` projekta mapē. Šis fails ir `.gitignore`, tāpēc tas nenonāk GitHub un paliek tikai tavā datorā. Ja faila nav vai tas ir tukšs, administratora iespējas ir izslēgtas.
-
 Sliktie dati tiek noraidīti ar **422** un netiek ierakstīti: tukšs vārds, vārds garāks par 20 simboliem, rupjš vārds, negatīvi punkti vai negatīvs raunds.
 
 Rezultāti glabājas SQLite datubāzē `game.db` projekta mapē, tāpēc tie paliek arī pēc servera restarta. Visi SQL vaicājumi izmanto `?` vietas (aizsardzība pret SQL injekciju). `game.db` nenonāk GitHub (`.gitignore`).
